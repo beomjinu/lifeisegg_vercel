@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name='google' content='notranslate'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="shortcut icon" href='{% static 'image/favicon.ico' %}'/>
+        
+        <title>{{ title }}</title>
+        <meta name="description" content='{{ description|default:'가장 합리적인 스케이트보드 데크, 라이프이즈에그' }}'>
+
+        <!--og tags-->
+        <meta property="og:type" content="website">
+        <meta property="og:title" content='{{ title|default:'라이프이즈에그 스케이트보드' }}'/>
+        <meta property="og:description" content='{{ description|default:'가장 합리적인 스케이트보드 데크, 라이프이즈에그' }}'>
+        <meta property="og:site_name" content="LIFEISEGG.">
+        {% if og_img_url %}
+        <meta property="og:image" content="{{ og_img_url }}"/>
+        {% else %}
+        <meta property="og:image" content="{% static 'image/og_img.png' %}"/>
+        {% endif %}
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-GH37Y35QFM"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-GH37Y35QFM');
+        </script>
+
+        <meta name="google-site-verification" content="mOXEYwgcRODP88jld8EmppSmXvZTgvo988okO0H1Upw" />
+
+        <!-- font -->
+        <style> 
+            @font-face {
+                font-family: 'Pretendard-Regular';
+                src: url('{% static 'font/Pretendard-Regular.woff' %}') format('woff');
+                font-weight: 400;
+                font-style: normal;
+            }
+        </style>
+
+        <!-- tailwind css -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            dark: '#121212',
+                            blue: '#0000ED',
+                            gray_1: '#F9F9F9',
+                            gray_2: '#303030',
+                            gray_3: '#999999'
+                            
+                        },
+                        fontFamily: {
+                            regular: ["Pretendard-Regular", "sans-serif"]
+                        }
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body class="font-regular text-dark w-11/12 mx-auto relative antialiased">
+        <div class="h-full min-h-screen">
+            <div class="flex justify-between h-12">
+                <a href="{% url 'index' %}" class="flex items-center">
+                    <p class="text-2xl">LIFEISEGG.</p>
+                </a>
+                <a href="{% url 'cart:index' %}" class="flex items-center mx-2">
+                    <img class="w-[24px]" src="{% static 'image/cart.png' %}">
+                </a>
+            </div>
+            <div class="flex justify-start w-full mb-4">
+                <hr class="w-full h-[1.5px] bg-dark border-0">
+            </div>
+            {% block content %}
+            {% endblock %}
+        </div>
+        <footer class="text-[8px] text-center sm:text-left sm:text-[12px] mb-8 mt-20 sm:mt-10 text-gray_3 h-full">
+            <a target="_blank" href="https://pgweb.tosspayments.com/ms/escrow/s_escrowYn.do?mertid=lifeisb7i1">
+                <img class="h-4 sm:h-6" src="{% static 'image/escrow.png' %}">
+            </a>
+            <p class='my-2'>© 2023 LIFEISEGG. All rights reserved.</p>
+            <div class="">
+                <p>상호: 라이프이즈에그 | 대표: 범진우 | 전화: 0507-1357-7588 | 이메일: me@beomjinu.com</p>
+                <p>주소: 경기도 용인시 수지구 대지로 139, 103-1103 | 개인정보관리책임자: 범진우</p>
+                <p>사업자등록번호: 776-38-01128 | 통신판매: 제 2023-용인수지-0998 | 호스팅제공자: AWS amazon web service</p>
+                <div class="flex justify-evenly mt-2">
+                    <a href="{% url 'terms:page' 'policy' %}">이용약관</a>
+                    <a href="{% url 'terms:page' 'privacy' %}">개인정보처리방침</a>
+                    <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=7763801128" target="_blank">사업자정보확인</p>
+                </div>
+            </div>
+        </footer>
+        <script>
+            (function(){var w=window;if(w.ChannelIO){return w.console.error("ChannelIO script included twice.");}var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement("script");s.type="text/javascript";s.async=true;s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";var x=document.getElementsByTagName("script")[0];if(x.parentNode){x.parentNode.insertBefore(s,x);}}if(document.readyState==="complete"){l();}else{w.addEventListener("DOMContentLoaded",l);w.addEventListener("load",l);}})();
+          
+            ChannelIO('boot', {
+              "pluginKey": "0fc3c832-9032-4ad2-9fd4-f8f3be1b8ae7"
+            });
+          </script>
+    </body>
+</html>

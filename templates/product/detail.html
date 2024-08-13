@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<div class="w-full md:w-11/12 max-w-[858px] h-full mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-2">
+            <img id="main_image" class="w-full aspect-square object-cover" src="{{ product.solted_images.first.image.url }}">
+            <div class="grid grid-cols-4 gap-1">
+                {% for image in product.solted_images %}
+                <img onclick="change_main_image({{ image.id }})" class="object-cover aspect-square w-full cursor-pointer" src="{{ image.image.url }}">
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <div class="w-full md:w-11/12 mx-auto sm:p-2">
+                <p class="text-3xl">{{ product.name }}</p>
+                <div class="flex gap-2 text-2xl my-2">
+                    <p class="text-blue">{{ product.discounted|intcomma }}원</p>
+                    {% if product.price != product.discounted %}
+                    <p class="text-gray_3"><del>{{ product.price|intcomma }}원</del></p>
+                    {% endif %}
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <img title="Freepik - Flaticon" class="w-8" src="{% static 'image/shipped.png' %}">
+                    <p class="flex items-center text-sm">무료 배송 상품</p>
+                </div>
+                <div class='my-6 text-sm min-h-16 h-16'>
+                    {{ product.description|safe }}
+                </div>
+                <div class="mt-12 w-full sm:w-1/2 relative cursor-pointer">
+                    <p class='absolute right-2 top-[6px] z-50'>⌵</p>
+                    <select onchange="select_option()" id="options" class="cursor-pointer appearance-none border border-dark text-dark bg-white text-sm rounded-lg block w-full p-2.5">
+                        <option value="NONE" selected>옵션을 선택해주세요.</option>
+                        {% for option in product.solted_options %}
+                        {% if option.is_sold_out %}
+                        <option value="{{ option.id }}" disabled>+{{ option.price|intcomma }}원 | {{ option.content }} (품절)</option>
+                        {% else %}
+                        <option value="{{ option.id }}">+{{ option.price|intcomma }}원 | {{ option.content }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex flex-col gap-4 min-h-32 mt-6">
+                    <div class="flex flex-col gap-1 text-sm" id="selected_option_html">
+                    </div>
+                    <div class="flex justify-between h-12 w-full mt-4">
+                        {% if product.is_sold_out %}
+                        <button class="w-full rounded-full bg-gray_2 text-white cursor-not-allowed">상품이 품절되었어요.</button>
+                        {% else %}
+                        <button onclick="buy()" class="w-[49%] rounded-full bg-dark text-white hover:bg-gray duration-500">구매하기</button>
+                        <button onclick='cart()' class="w-[49%] rounded-full border border-dark hover:bg-dark hover:text-white duration-500">장바구니</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='my-12 w-1/3 mx-auto'>
+        <hr class="w-full h-px bg-dark border-0">
+    </div>
+    <div>
+        {{ product.post|default:''|safe }}
+    </div>
+</div>
+<script src='{% static 'js/cookie.js' %}'></script>
+<script>
+    let option_list = []
+    {% for option in product.options.all %}
+    option_list.push(
+        {
+            "id": parseInt('{{ option.id }}'),
+            "content": '{{ option.content }}',
+            "price": parseInt('{{ option.price }}'),
+            "is_sold_out": ('{{ option.is_sold_out }}' == 'True') ? true : false
+        }
+    )
+    {% endfor %}
+
+    let selected_option = []
+
+    function add_option(product_id, quantity=1) {
+        let overlap = false;
+
+        if (selected_option.length != 0) {
+            for (let i in selected_option) {
+                if (selected_option[i][0].id == product_id) {
+                    selected_option[i][1] += quantity
+                    
+                    if (selected_option[i][1] <= 0) {
+                        delete_option(product_id)
+                    }
+
+                    overlap = true
+                }
+            }
+        }
+
+        if (overlap != true) {
+            let option = option_list.find(function(item) {
+                return item.id === product_id;
+            });
+
+            selected_option.push([option, 1])
+        }
+
+        set_options_html()
+    }
+
+    function delete_option(product_id) {
+        product_id = parseInt(product_id)
+
+        selected_option = selected_option.filter(function(item) {
+            return item[0].id !== product_id;
+        });
+
+        set_options_html()
+    }
+
+    function select_option() {
+        let element = document.getElementById("options");
+
+        add_option(parseInt(element.value))
+        element.value = "NONE"
+    }
+
+    let product_discounted = parseInt('{{ product.discounted }}')
+
+    function set_options_html() {
+        let html = ""
+
+        for (let i in selected_option) {
+            html += `
+                <div class="relative rounded-sm bg-gray_1 h-20 p-2">
+                    <button onclick="delete_option(${selected_option[i][0].id})" class="text-gray_3 absolute right-2 h-[6.5px] w-[6.5px] leading-[6.5px] flex flex-col">⨯</button>
+                    <div class="flex justify-between w-full h-full">
+                        <div class="flex flex-col justify-between h-full">
+                            <p>${selected_option[i][0].content}</p>
+                            <div class="flex items-center h-8 border border-gray_3 w-24 rounded-lg text-gray_3">
+                                <button onclick="add_option(${selected_option[i][0].id})" class="w-8 h-full border-r border-gray_3 flex items-center justify-center">
+                                    +
+                                </button>
+                                <div class="w-8 h-full flex items-center justify-center text-dark">
+                                    ${selected_option[i][1]}
+                                </div>
+                                <button onclick="add_option(${selected_option[i][0].id}, -1)" class="w-8 h-full flex items-center justify-center border-l border-gray_3">
+                                    -
+                                </button>
+                                </div>
+                            </div>
+                        <p class="flex items-center">${ ((product_discounted + selected_option[i][0].price) * selected_option[i][1]).toLocaleString() }원</p>
+                    </div>
+                </div>
+            `
+        }
+        let element = document.getElementById("selected_option_html")
+        element.innerHTML = html
+    }
+
+    let images = []
+
+    {% for i in product.images.all %}
+    images.push({
+        "id": parseInt("{{ i.id }}"),
+        "url": "{{ i.image.url }}"
+    })
+    {% endfor %}
+
+    function change_main_image(image_id) {
+        image_id = parseInt(image_id)
+
+        image = images.find(function(item) {
+            return item.id === image_id;
+        }); 
+        document.getElementById("main_image").src = image.url
+    }
+
+    function get_selected_option() {
+        if (selected_option.length == 0) {
+            return null
+        }
+        else {
+            let options = {}
+
+            for (let i in selected_option) {
+                options[(selected_option[i][0].id).toString()] = {
+                    quantity: selected_option[i][1]
+                }
+            }
+
+            return options
+        }
+
+    }
+
+    function buy() {
+        options = get_selected_option()
+        if (!options) {
+            alert('옵션을 선택해주세요.')
+        }
+        else {
+            location.href = '{% url 'order:form' %}' + '?data=' + data_encode(options)
+        }
+    }
+
+
+    function cart() {
+        options = get_selected_option()
+
+        if (!options) {
+            alert('옵션을 선택해주세요.')
+        }
+        else {
+            if (!get_cookie('cart')) {
+                set_cookie('cart', data_encode(options))
+            }
+            else {
+                let cart_data = data_decode(get_cookie('cart'))
+    
+                for (i in options) {
+                    if (cart_data.hasOwnProperty(i)) {
+                        cart_data[i]['quantity'] += options[i]['quantity']
+                    }
+                    else {
+                        cart_data[i] = options[i]
+                    }
+                }
+    
+                set_cookie('cart', data_encode(cart_data))
+                
+            }
+            if (confirm('장바구니에 상품이 담겼습니다. 이동하시겠습니까?')) {
+                location.href = '{% url 'cart:index' %}'
+            }
+        }
+    }
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+<div class='w-full md:w-11/12 max-w-[720px] h-full mx-auto mb-20'>
+    <div class='flex flex-col gap-10 my-8'>
+        <p class='text-4xl font-bold text-blue'>{{ order.status_display }}</p>
+        {% if order.status == 'WAITING_FOR_DEPOSIT' %}
+        <div class='flex flex-col gap-2'>
+            <p class='text-xl my-1'>입금 정보</p>
+            <div class=''>
+                <label class="text-sm font-medium">입금하실 계좌</label>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3 text-blue" value='{{ order.payment.virtual_account }}' disabled>
+            </div>
+            <div class=''>
+                <label class="text-sm font-medium">입금하실 금액</label>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.amount|intcomma }}원' disabled>
+            </div>
+            <div class=''>
+                <label class="text-sm font-medium">입금 기한</label>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.payment.due_date|date:'Y년 m월 d일 H시 i분' }}' disabled>
+            </div>
+        </div>
+        {% endif %}
+        <div>
+            <p class="text-xl">주문 상품</p>
+            <div class="flex flex-col gap-2 mt-3">
+                {% for item in order.items.all %}
+                <div class="h-24 w-full p-4 flex flex-col gap-4 bg-gray_1 rounded-lg">
+                    <div class=' rounded-lg bg-gray_1'>
+                        <div class='flex flex-col justify-center gap-2'>
+                            <p class='text-xl'>{{ item.content }}</p>
+                            <p class=''>{{ item.quantity }}개 / {{ item.total_price|intcomma }}원</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class='flex flex-col gap-4'>
+            <p class='text-xl'>주문 정보</p>
+            <div class=''>
+                <label class="text-sm font-medium">주문 일시</label>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.created_at|date:'Y년 m월 d일 H시 i분' }}' disabled>
+            </div>
+            <div>
+                <label class="text-sm font-medium">주문자</label>
+                <div class='gap-4 grid grid-cols-2'>
+                    <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.orderer_name }}' disabled>
+                    <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3 tracking-wider" value='{{ order.orderer_number }}' disabled>
+                </div>
+            </div>
+            <div>
+                <label class="text-sm font-medium">배송지</label>
+                <div class='gap-4 grid grid-cols-2'>
+                    <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.recipient_name }}' disabled>
+                    <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3 tracking-wider" value='{{ order.recipient_number }}' disabled>
+                </div>
+                <input type="text" class="mt-2 h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.address }}' disabled>
+            </div>
+            <div>
+                <label class="text-sm font-medium">요청 사항</label>
+                {% if order.request %}
+                <input type="text" class="mt-2 h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.request }}' disabled>                
+                {% else %}
+                <input type="text" class="mt-2 h-12 bg-gray_1 rounded-lg w-full p-3" placeholder='요청 사항이 비어있습니다.' disabled>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <p class='text-xl'>결제 정보</p>
+            {% if order.status != 'WAITING_FOR_PAYMENT' and order.status != 'WAITING_FOR_DEPOSIT' %}
+            <div>
+                <div class='gap-4 grid grid-cols-2 my-2'>
+                    <div>
+                        <label class="text-sm font-medium">결제 수단</label>
+                        <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.payment.method }}' disabled>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium">결제 금액</label>
+                        {% if order.status == 'CANCELED' %}
+                        <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.amount|intcomma }}원 (환불 완료)' disabled>
+                        {% else %}
+                        <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.amount|intcomma }}원' disabled>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class='my-2'>
+                <label class="text-sm font-medium">결제 일시</label>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.payment.approved_at|date:'Y년 m월 d일 H시 i분' }}' disabled>
+            </div>
+            {% else %}
+            <div class='my-2'>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" placeholder='아직 결제가 완료되지 않았어요.' disabled>
+            </div>
+            {% endif %}
+        </div>
+        <div>
+            <p class='text-xl'>배송 정보</p>
+            {% if order.delivery and order.status == 'DONE_SEND' %}
+            <div class='my-2'>
+                <label class="text-sm font-medium">운송장 번호</label>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" value='{{ order.delivery }}' disabled>
+            </div>
+            {% else %}
+            <div class='my-2'>
+                <input type="text" class="h-12 bg-gray_1 rounded-lg w-full p-3" placeholder='아직 배송이 시작되지 않았어요.' disabled>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <p class='text-blue text-sm'>! 현재 페이지의 링크를 공유하지 마세요.</p>
+</div>
+{% endblock %}
