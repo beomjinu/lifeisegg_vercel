@@ -92,13 +92,9 @@ else:
         }
     }
 
-    # Create a superuser
-    username = ENV_DATA['ADMIN_NAME']
-    email = ENV_DATA['ADMIN_EMAIL']
-    password = ENV_DATA['ADMIN_PASSWORD']
-
-    if not User.objects.filter(username=username).exists():
-        User.objects.create_superuser(username=username, email=email, password=password)
+    ADMIN_NAME = ENV_DATA['ADMIN_NAME']
+    ADMIN_EMAIL = ENV_DATA['ADMIN_EMAIL']
+    ADMIN_PASSWORD = ENV_DATA['ADMIN_PASSWORD']
 
 
 
