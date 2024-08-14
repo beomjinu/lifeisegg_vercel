@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from dotenv import load_dotenv
 from pathlib import Path
 import os
@@ -90,6 +91,17 @@ else:
             'PORT': '5432',
         }
     }
+
+    # Create a superuser
+    username = ENV_DATA['ADMIN_NAME']
+    email = ENV_DATA['ADMIN_EMAIL']
+    password = ENV_DATA['ADMIN_PASSWORD']
+
+    if not User.objects.filter(username=username).exists():
+        User.objects.create_superuser(username=username, email=email, password=password)
+
+
+
 
 
 # Password validation
