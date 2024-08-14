@@ -86,7 +86,7 @@ else:
             'NAME': ENV_DATA['POSTGRES_DB'],
             'USER': ENV_DATA['POSTGRES_USER'],
             'PASSWORD': ENV_DATA['POSTGRES_PASSWORD'],
-            'HOST': 'db',
+            'HOST': ENV_DATA['POSTGRES_HOST'],
             'PORT': '5432',
         }
     }
