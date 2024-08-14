@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from dotenv import load_dotenv
 from pathlib import Path
 import os
@@ -73,30 +72,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': ENV_DATA['POSTGRES_DB'],
+        'USER': ENV_DATA['POSTGRES_USER'],
+        'PASSWORD': ENV_DATA['POSTGRES_PASSWORD'],
+        'HOST': ENV_DATA['POSTGRES_HOST'],
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': ENV_DATA['POSTGRES_DB'],
-            'USER': ENV_DATA['POSTGRES_USER'],
-            'PASSWORD': ENV_DATA['POSTGRES_PASSWORD'],
-            'HOST': ENV_DATA['POSTGRES_HOST'],
-            'PORT': '5432',
-        }
-    }
-
-    ADMIN_NAME = ENV_DATA['ADMIN_NAME']
-    ADMIN_EMAIL = ENV_DATA['ADMIN_EMAIL']
-    ADMIN_PASSWORD = ENV_DATA['ADMIN_PASSWORD']
-
-
+}
 
 
 
