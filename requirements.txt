@@ -6,3 +6,4 @@ python-dotenv
 requests
 sqlparse
 django-summernote
+whitenoise
